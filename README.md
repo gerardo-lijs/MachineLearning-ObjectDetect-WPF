@@ -1,5 +1,8 @@
 # Machine Learning Object Detection in .NET with WPF App
-Complete sample for object detection in .NET using Machine Learning and WPF. From image labeling to training to final app
+Complete sample for object detection in .NET using Machine Learning and WPF. From image labeling to training to final app.
+
+> For sample/demonstration/understanding of the full cycle I will label and train with just a few images of a very simple problem. Labeling and model training depending the domain and complexity of the project is something best done by a Data Scientist specialist.
+For .NET developers I think the important part is Part 3 so they can integrate with their software and add value. Labeling and model training can be outsource to a specialist or use one of the several public models available made by experts.
 
 ## Part 1 - Labeling
 The first step to detect objects in images/video is to label them. There are several applications and websites for this. Opensource, comercial, local only, cloud backend to fit everyone needs/taste. Here is a short list of some of them:
@@ -40,6 +43,22 @@ The first step to detect objects in images/video is to label them. There are sev
 
 
 ## Part 2 - Model training
+
+* [Azure Custom Vision Portal](https://www.customvision.ai/)
+
+  For this sample I used this simple tool for labeling and training. I used the [facemask dataset](https://www.kaggle.com/sshikamaru/face-mask-detection) from Kaggle and I just used 20 images for training and a few for testing. Labeling took me about two minutes and I did it very rough and model training took just 5 minutes.
+  
+  [See more details/pictures steps here]()
+
+  ![](images/customvision-3.jpg)
+  
+* [TensorFlow](https://www.tensorflow.org/)
+
+  ML.NET can work with TensorFlow models or you can convert to [ONNX format](https://onnx.ai/)
+
+* [PyTorch](https://pytorch.org/)
+
+  If you are comfortable with Python and export to ONNX
 
 ## Part 3 - WPF Application
 In this sample I chose to use a .NET 5 WPF application so that the sample is helpful for .NET desktop developers. Obviously deploying the previous model as a Docker container or a REST API endpoint for web use is also possible and maybe even simpler and they are several samples/tutorials online for this.
