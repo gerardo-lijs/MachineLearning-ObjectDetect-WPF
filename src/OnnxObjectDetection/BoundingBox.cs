@@ -2,14 +2,6 @@
 
 namespace OnnxObjectDetection
 {
-    public class BoundingBoxDimensions
-    {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Height { get; set; }
-        public float Width { get; set; }
-    }
-
     public class BoundingBox
     {
         public BoundingBoxDimensions Dimensions { get; set; }
@@ -18,14 +10,11 @@ namespace OnnxObjectDetection
 
         public float Confidence { get; set; }
 
-        public RectangleF Rect
-        {
-            get { return new RectangleF(Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height); }
-        }
+        public RectangleF Rect => new RectangleF(Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height);
 
         public Color BoxColor { get; set; }
 
-        public string Description => $"{Label} ({(Confidence * 100).ToString("0")}%)";
+        public string Description => $"{Label} ({Confidence * 100:0}%)";
 
         private static readonly Color[] classColors = new Color[]
         {

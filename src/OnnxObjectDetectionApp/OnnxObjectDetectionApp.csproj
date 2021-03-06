@@ -18,4 +18,10 @@
     <ProjectReference Include="..\OnnxObjectDetection\OnnxObjectDetection.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="OnnxModels\2d57957ce10f4489a43725da328a5ba9.ONNX.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

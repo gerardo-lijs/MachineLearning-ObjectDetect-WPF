@@ -20,7 +20,7 @@ namespace OnnxObjectDetectionApp
         private OnnxOutputParser outputParser;
         private PredictionEngine<ImageInputData, CustomVisionPrediction> customVisionPredictionEngine;
 
-        private static readonly string modelsDirectory = Path.Combine(Environment.CurrentDirectory, @"ML\OnnxModels");
+        private static readonly string modelsDirectory = Path.Combine(Environment.CurrentDirectory, @"OnnxModels");
 
         private List<string> ImageList;
         private int currentImageIndex;

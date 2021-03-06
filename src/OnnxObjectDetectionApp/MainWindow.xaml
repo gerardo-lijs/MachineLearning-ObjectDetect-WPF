@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OnnxObjectDetectionApp"
         mc:Ignorable="d"
         Title="ML.NET Object Detection (Onnx)" MinHeight="600" MinWidth="800">
     <Grid Background="Black">
@@ -16,7 +15,7 @@
             <TextBox x:Name="StatusTextBlock"/>
         </StackPanel>
 
-        <Image x:Name="WebCamImage" Grid.Row="1" />
-        <Canvas x:Name="WebCamCanvas" Grid.Row="1" Width="{Binding Path=ActualWidth, ElementName=WebCamImage}"/>
+        <Image x:Name="WebCamImage" Grid.Row="1"/>
+        <Canvas x:Name="WebCamCanvas" Grid.Row="1" Width="{Binding Path=ActualWidth, ElementName=WebCamImage}" />
     </Grid>
 </Window>
