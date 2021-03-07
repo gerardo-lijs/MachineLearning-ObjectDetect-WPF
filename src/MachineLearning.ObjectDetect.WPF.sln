@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnnxObjectDetectionApp", "OnnxObjectDetectionApp\OnnxObjectDetectionApp.csproj", "{67D5581D-339D-4C12-AC3A-7B69FA3DB876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineLearning.ObjectDetect.WPF", "MachineLearning.ObjectDetect.WPF\MachineLearning.ObjectDetect.WPF.csproj", "{67D5581D-339D-4C12-AC3A-7B69FA3DB876}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnnxObjectDetection", "OnnxObjectDetection\OnnxObjectDetection.csproj", "{63A49E42-E567-434D-AC0C-BA8AC185F994}"
 EndProject

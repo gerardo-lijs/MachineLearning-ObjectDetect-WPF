@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OnnxObjectDetectionApp
+namespace MachineLearning.ObjectDetect.WPF
 {
     /// <summary>
     /// Interaction logic for App.xaml

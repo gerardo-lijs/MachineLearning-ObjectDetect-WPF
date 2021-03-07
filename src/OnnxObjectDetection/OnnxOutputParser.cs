@@ -12,18 +12,30 @@ namespace OnnxObjectDetection
             public float Confidence { get; set; }
         }
 
-        // The number of rows and columns in the grid the image is divided into.
-        public const int rowCount = 13, columnCount = 13;
+        /// <summary>
+        /// The number of rows in the grid the image is divided into.
+        /// </summary>
+        public const int rowCount = 13;
+        /// <summary>
+        /// The number of columns in the grid the image is divided into.
+        /// </summary>
+        public const int columnCount = 13;
 
-        // The number of features contained within a box (x, y, height, width, confidence).
+        /// <summary>
+        /// The number of features contained within a box (x, y, height, width, confidence). 
+        /// </summary>
         public const int featuresPerBox = 5;
 
-        // Labels corresponding to the classes the onnx model can predict. For example, the 
-        // Tiny YOLOv2 model included with this sample is trained to predict 20 different classes.
+        /// <summary>
+        /// Labels corresponding to the classes the onnx model can predict. For example, the 
+        /// Tiny YOLOv2 model included with this sample is trained to predict 20 different classes.
+        /// </summary>
         private readonly string[] classLabels;
 
-        // Predetermined anchor offsets for the bounding boxes in a cell.
-        private readonly (float x,float y)[] boxAnchors;
+        /// <summary>
+        /// Predetermined anchor offsets for the bounding boxes in a cell.
+        /// </summary>
+        private readonly (float x, float y)[] boxAnchors;
 
 
         public OnnxOutputParser(IOnnxModel onnxModel)
@@ -32,14 +44,18 @@ namespace OnnxObjectDetection
             boxAnchors = onnxModel.Anchors;
         }
 
-        // Applies the sigmoid function that outputs a number between 0 and 1.
+        /// <summary>
+        /// Applies the sigmoid function that outputs a number between 0 and 1.
+        /// </summary>
         private float Sigmoid(float value)
         {
             var k = MathF.Exp(value);
             return k / (1.0f + k);
         }
 
-        // Normalizes an input vector into a probability distribution.
+        /// <summary>
+        /// Normalizes an input vector into a probability distribution.
+        /// </summary>
         private float[] Softmax(float[] classProbabilities)
         {
             var max = classProbabilities.Max();
@@ -48,18 +64,22 @@ namespace OnnxObjectDetection
             return exp.Select(v => v / sum).ToArray();
         }
 
-        // Onnx outputst a tensor that has a shape of (for Tiny YOLOv2) 125x13x13. ML.NET flattens
-        // this multi-dimensional into a one-dimensional array. This method allows us to access a 
-        // specific channel for a givin (x,y) cell position by calculating the offset into the array.
+        /// <summary>
+        /// Onnx outputst a tensor that has a shape of (for Tiny YOLOv2) 125x13x13. ML.NET flattens
+        /// this multi-dimensional into a one-dimensional array. This method allows us to access a 
+        /// specific channel for a givin (x,y) cell position by calculating the offset into the array.
+        /// </summary>
         private int GetOffset(int row, int column, int channel)
         {
             const int channelStride = rowCount * columnCount;
             return (channel * channelStride) + (column * columnCount) + row;
         }
 
-        // Extracts the bounding box features (x, y, height, width, confidence) method from the model
-        // output. The confidence value states how sure the model is that it has detected an object. 
-        // We use the Sigmoid function to turn it that confidence into a percentage.
+        /// <summary>
+        /// Extracts the bounding box features (x, y, height, width, confidence) method from the model
+        /// output. The confidence value states how sure the model is that it has detected an object. 
+        /// We use the Sigmoid function to turn it that confidence into a percentage.
+        /// </summary>
         private BoundingBoxPrediction ExtractBoundingBoxPrediction(float[] modelOutput, int row, int column, int channel)
         {
             return new BoundingBoxPrediction
@@ -72,12 +92,14 @@ namespace OnnxObjectDetection
             };
         }
 
-        // The predicted x and y coordinates are relative to the location of the grid cell; we use 
-        // the logistic sigmoid to constrain these coordinates to the range 0 - 1. Then we add the
-        // cell coordinates (0-12) and multiply by the number of pixels per grid cell (32).
-        // Now x/y represent the center of the bounding box in the original 416x416 image space.
-        // Additionally, the size (width, height) of the bounding box is predicted relative to the
-        // size of an "anchor" box. So we transform the width/weight into the original 416x416 image space.
+        /// <summary>
+        /// The predicted x and y coordinates are relative to the location of the grid cell; we use 
+        /// the logistic sigmoid to constrain these coordinates to the range 0 - 1. Then we add the
+        /// cell coordinates (0-12) and multiply by the number of pixels per grid cell (32).
+        /// Now x/y represent the center of the bounding box in the original 416x416 image space.
+        /// Additionally, the size (width, height) of the bounding box is predicted relative to the
+        /// size of an "anchor" box. So we transform the width/weight into the original 416x416 image space.
+        /// </summary>
         private BoundingBoxDimensions MapBoundingBoxToCell(int row, int column, int box, BoundingBoxPrediction boxDimensions)
         {
             const float cellWidth = ImageSettings.imageWidth / columnCount;
@@ -99,8 +121,10 @@ namespace OnnxObjectDetection
             return mappedBox;
         }
 
-        // Extracts the class predictions for the bounding box from the model output using the
-        // GetOffset method and turns them into a probability distribution using the Softmax method.
+        /// <summary>
+        /// Extracts the class predictions for the bounding box from the model output using the
+        /// GetOffset method and turns them into a probability distribution using the Softmax method.
+        /// </summary>
         public float[] ExtractClassProbabilities(float[] modelOutput, int row, int column, int channel, float confidence)
         {
             var classProbabilitiesOffset = channel + featuresPerBox;
@@ -110,11 +134,13 @@ namespace OnnxObjectDetection
             return Softmax(classProbabilities).Select(p => p * confidence).ToArray();
         }
 
-        // IoU (Intersection over union) measures the overlap between 2 boundaries. We use that to
-        // measure how much our predicted boundary overlaps with the ground truth (the real object
-        // boundary). In some datasets, we predefine an IoU threshold (say 0.5) in classifying
-        // whether the prediction is a true positive or a false positive. This method filters
-        // overlapping bounding boxes with lower probabilities.
+        /// <summary>
+        /// IoU (Intersection over union) measures the overlap between 2 boundaries. We use that to
+        /// measure how much our predicted boundary overlaps with the ground truth (the real object
+        /// boundary). In some datasets, we predefine an IoU threshold (say 0.5) in classifying
+        /// whether the prediction is a true positive or a false positive. This method filters
+        /// overlapping bounding boxes with lower probabilities.
+        /// </summary>
         private float IntersectionOverUnion(RectangleF boundingBoxA, RectangleF boundingBoxB)
         {
             var areaA = boundingBoxA.Width * boundingBoxA.Height;
@@ -154,7 +180,7 @@ namespace OnnxObjectDetection
 
                         float[] classProbabilities = ExtractClassProbabilities(modelOutput, row, column, channel, boundingBoxPrediction.Confidence);
 
-                        var (topProbability, topIndex) = classProbabilities.Select((probability, index) => (Score:probability, Index:index)).Max();
+                        var (topProbability, topIndex) = classProbabilities.Select((probability, index) => (Score: probability, Index: index)).Max();
 
                         if (topProbability < probabilityThreshold)
                             continue;

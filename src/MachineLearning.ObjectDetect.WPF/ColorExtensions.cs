@@ -1,4 +1,4 @@
-﻿namespace OnnxObjectDetectionApp
+﻿namespace MachineLearning.ObjectDetect.WPF
 {
     internal static class ColorExtensions
     {
