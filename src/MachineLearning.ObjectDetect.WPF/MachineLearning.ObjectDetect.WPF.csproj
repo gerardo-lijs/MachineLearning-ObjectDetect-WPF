@@ -9,14 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.4" />
     <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="4.8.0" />
-    <PackageReference Include="ReactiveUI.WPF" Version="13.1.1" />
-    <PackageReference Include="ReactiveUI.Fody" Version="12.1.5" />
-    <PackageReference Include="Microsoft.ML" Version="1.5.4" />
-    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.5.4" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.6.0" />
-    <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="1.5.4" />
+    <PackageReference Include="ReactiveUI.WPF" Version="13.2.2" />
+    <PackageReference Include="ReactiveUI.Fody" Version="13.2.2" />
+    <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.ML" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.7.0" />
+    <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="1.5.5" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="5.0.2" />
   </ItemGroup>
 

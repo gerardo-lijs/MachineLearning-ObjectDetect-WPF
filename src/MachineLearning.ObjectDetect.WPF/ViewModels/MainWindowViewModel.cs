@@ -5,9 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-using System.Drawing;
-using System.Windows.Media.Imaging;
-
+using Splat;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -16,35 +14,18 @@ using OnnxObjectDetection;
 
 namespace MachineLearning.ObjectDetect.WPF.ViewModels
 {
-    public class MainWindowViewModel : ReactiveObject
+    public class MainWindowViewModel : ReactiveObject, IScreen
     {
+        public RoutingState Router { get; }
+
         // TODO: Change this to UI select folder and change model in runtime
-        private readonly OnnxOutputParser outputParser;
-        private readonly PredictionEngine<ImageInputData, CustomVisionPrediction> customVisionPredictionEngine;
+        public OnnxOutputParser OutputParser { get; }
+        public PredictionEngine<ImageInputData, CustomVisionPrediction> CustomVisionPredictionEngine { get; }
         private readonly string modelsDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, @"OnnxModels");
-
-        // Commands
-        public ReactiveCommand<Unit, Unit> PrevImage { get; }
-        public ReactiveCommand<Unit, Unit> NextImage { get; }
-        public ReactiveCommand<Unit, Unit> SelectImageFolder { get; }
-
-        [Reactive] public string ImageFolderPath { get; private set; } = string.Empty;
-        [Reactive] public List<string> ImageList { get; private set; } = new List<string>();
-        [Reactive] public int ImageCurrentIndex { get; private set; }
-
-        [Reactive] public long DetectMilliseconds { get; private set; }
-        [Reactive] public BitmapSource? DetectImageSource { get; private set; }
-        public List<BoundingBox> FilteredBoundingBoxes { get; private set; } = new List<BoundingBox>();
-
-        // Interactions
-        public readonly Interaction<Unit, Unit> DrawOverlays = new Interaction<Unit, Unit>();
 
         public MainWindowViewModel()
         {
-            // Create command
-            PrevImage = ReactiveCommand.CreateFromTask(PrevImageImpl);
-            NextImage = ReactiveCommand.CreateFromTask(NextImageImpl);
-            SelectImageFolder = ReactiveCommand.CreateFromTask(SelectImageFolderImpl);
+            Locator.CurrentMutable.RegisterConstant(this,typeof(IScreen));
 
             // Load Onnx model
             var customVisionExport = System.IO.Directory.GetFiles(modelsDirectory, "*.zip").FirstOrDefault();
@@ -52,76 +33,14 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
             var customVisionModel = new CustomVisionModel(customVisionExport);
             var modelConfigurator = new OnnxModelConfigurator(customVisionModel);
 
-            outputParser = new OnnxOutputParser(customVisionModel);
-            customVisionPredictionEngine = modelConfigurator.GetMlNetPredictionEngine<CustomVisionPrediction>();
+            OutputParser = new OnnxOutputParser(customVisionModel);
+            CustomVisionPredictionEngine = modelConfigurator.GetMlNetPredictionEngine<CustomVisionPrediction>();
 
-            // Observables
-            this.WhenAnyValue(x => x.ImageFolderPath)
-                .Skip(1)
-                .Subscribe(folder =>
-                {
-                    if (string.IsNullOrWhiteSpace(folder)) return;
-                    ImageList = System.IO.Directory.GetFiles(folder).Where(x => x.ToLowerInvariant().EndsWith(".png") || x.ToLowerInvariant().EndsWith(".jpg") || x.ToLowerInvariant().EndsWith(".jpeg") || x.ToLowerInvariant().EndsWith(".bmp")).ToList();
-                });
+            // Initialize the Router.
+            Router = new RoutingState();
 
-            // Load image list
-            ImageFolderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "TestImages");
-        }
-
-        private async Task SelectImageFolderImpl()
-        {
-            using var dialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                ShowNewFolderButton = false,
-                SelectedPath = ImageFolderPath
-            };
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                ImageFolderPath = dialog.SelectedPath;
-                ImageCurrentIndex = 0;
-                if (ImageList.Count > 0)
-                {
-                    await NextImage.Execute();
-                }
-            }
-        }
-
-        private async Task PrevImageImpl()
-        {
-            if (ImageCurrentIndex <= 1) return;
-            ImageCurrentIndex--;
-            await LoadAndDetectImage(ImageList[ImageCurrentIndex - 1]);
-        }
-
-        private async Task NextImageImpl()
-        {
-            if (ImageList.Count == ImageCurrentIndex) return;
-            ImageCurrentIndex++;
-            await LoadAndDetectImage(ImageList[ImageCurrentIndex - 1]);
-        }
-
-        async Task DetectImage(Bitmap bitmap)
-        {
-            var imageInputData = new ImageInputData { Image = bitmap };
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            var labels = customVisionPredictionEngine.Predict(imageInputData).PredictedLabels;
-            var boundingBoxes = outputParser.ParseOutputs(labels);
-            FilteredBoundingBoxes = outputParser.FilterBoundingBoxes(boundingBoxes, 5, 0.5f);
-
-            // Time spent for detection by ML.NET
-            DetectMilliseconds = sw.ElapsedMilliseconds;
-
-            await DrawOverlays.Handle(Unit.Default);
-        }
-
-        private async Task LoadAndDetectImage(string filename)
-        {
-            var bitmapImage = new Bitmap(filename);
-            DetectImageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmapImage.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            await DetectImage(bitmapImage);
+            // Start with New Capture content
+            Router.Navigate.Execute(Locator.Current.GetService<FolderViewModel>());
         }
     }
 }
