@@ -31,6 +31,9 @@
     <None Update="OnnxModels\facemask.ONNX.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="OnnxModels\TinyYolo2_model.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestImages\00_maksssksksss598.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

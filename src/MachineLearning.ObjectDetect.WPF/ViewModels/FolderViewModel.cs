@@ -101,9 +101,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            var labels = _mainViewModel.CustomVisionPredictionEngine.Predict(imageInputData).PredictedLabels;
-            var boundingBoxes = _mainViewModel.OutputParser.ParseOutputs(labels);
-            FilteredBoundingBoxes = _mainViewModel.OutputParser.FilterBoundingBoxes(boundingBoxes, 5, 0.5f);
+            FilteredBoundingBoxes = _mainViewModel.DetectObjects(imageInputData);
 
             // Time spent for detection by ML.NET
             DetectMilliseconds = sw.ElapsedMilliseconds;
