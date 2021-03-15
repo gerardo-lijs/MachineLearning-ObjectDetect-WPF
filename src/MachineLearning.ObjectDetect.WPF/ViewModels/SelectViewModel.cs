@@ -28,6 +28,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
         // Commands
         public ReactiveCommand<Unit, Unit> FolderViewSelect { get; }
+        public ReactiveCommand<Unit, Unit> WebcamViewSelect { get; }
 
         public SelectViewModel(IScreen? screen = null)
         {
@@ -48,11 +49,17 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
             // Create command
             FolderViewSelect = ReactiveCommand.CreateFromTask(FolderViewSelectImpl);
+            WebcamViewSelect = ReactiveCommand.CreateFromTask(WebcamViewSelectImpl);
         }
 
         private async Task FolderViewSelectImpl()
         {
             await _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<FolderViewModel>());
+        }
+
+        private async Task WebcamViewSelectImpl()
+        {
+            await _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<WebcamViewModel>());
         }
     }
 }

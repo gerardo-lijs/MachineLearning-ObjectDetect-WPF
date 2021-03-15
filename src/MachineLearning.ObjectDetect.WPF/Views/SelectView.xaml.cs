@@ -39,6 +39,7 @@ namespace MachineLearning.ObjectDetect.WPF.Views
 
                 // Commands
                 this.BindCommand(ViewModel, viewModel => viewModel.FolderViewSelect, view => view.FolderViewButton).DisposeWith(disposableRegistration);
+                this.BindCommand(ViewModel, viewModel => viewModel.WebcamViewSelect, view => view.WebcamViewButton).DisposeWith(disposableRegistration);
 
             });
         }

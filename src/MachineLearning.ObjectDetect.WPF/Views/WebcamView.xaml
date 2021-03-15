@@ -1,0 +1,42 @@
+﻿<local:WebcamViewBase
+    x:Class="MachineLearning.ObjectDetect.WPF.Views.WebcamView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:MachineLearning.ObjectDetect.WPF.Views"
+    xmlns:viewmodels="clr-namespace:MachineLearning.ObjectDetect.WPF.ViewModels"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    mc:Ignorable="d" 
+    d:DataContext="{d:DesignInstance Type=viewmodels:WebcamViewModel, IsDesignTimeCreatable=false}" MinWidth="500" MinHeight="500" Background="Black"
+    SizeChanged="UserControl_SizeChanged" >
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="5">
+            <Button x:Name="NavigateBackButton" Content="Back to select" />
+            <ComboBox x:Name="CameraDeviceComboBox" Margin="20,5,0,0" ItemsSource="{Binding CameraDevices, Mode=OneWay}" DisplayMemberPath="Name" SelectedItem="{Binding CameraDeviceSelected}" VerticalAlignment="Center" />
+            <TextBlock Margin="10" Foreground="White" VerticalAlignment="Center" ><Run Text="{Binding CameraOpenCv.CurrentFPS, Mode=OneWay}" /><Run Text=" fps"/></TextBlock>
+        </StackPanel>
+
+        <Image x:Name="WebcamImage" Grid.Row="1" Stretch="Uniform"/>
+        <Canvas x:Name="WebCamCanvas" Grid.Row="1" Width="{Binding Path=ActualWidth, ElementName=WebcamImage}" />
+
+        <StackPanel Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center">
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="WebcamStartButton" Content="Start" Margin="10" Padding="5" MaxHeight="30" />
+            <Button x:Name="WebcamStopButton" Content="Stop"  Margin="10" Padding="5" MaxHeight="30" IsEnabled="False" />
+
+            <CheckBox x:Name="FlipImageYCheckBox" Content="Flip image Y" IsChecked="{Binding CameraOpenCv.FlipImageY}" VerticalAlignment="Center" Margin="10,0,0,0" />
+            <CheckBox x:Name="FlipImageXCheckBox" Content="Flip image X" IsChecked="{Binding CameraOpenCv.FlipImageX}" VerticalAlignment="Center" Margin="10,0,0,0" />
+        </StackPanel>
+    </Grid>
+</local:WebcamViewBase>
