@@ -33,6 +33,7 @@ namespace MachineLearning.ObjectDetect.WPF.Views
                 this.WhenAnyValue(viewModel => viewModel.ViewModel).BindTo(this, view => view.DataContext).DisposeWith(disposableRegistration);
 
                 // Commands
+                this.BindCommand(ViewModel, viewModel => viewModel.NavigateBack, view => view.NavigateBackButton).DisposeWith(disposableRegistration);
                 this.BindCommand(ViewModel, viewModel => viewModel.PrevImage, view => view.PrevImageButton).DisposeWith(disposableRegistration);
                 this.BindCommand(ViewModel, viewModel => viewModel.NextImage, view => view.NextImageButton).DisposeWith(disposableRegistration);
                 this.BindCommand(ViewModel, viewModel => viewModel.SelectImageFolder, view => view.SelectImageFolderButton).DisposeWith(disposableRegistration);

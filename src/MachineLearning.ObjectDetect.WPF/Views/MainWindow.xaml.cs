@@ -11,6 +11,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 
 using ReactiveUI;
+using Splat;
 
 using MachineLearning.ObjectDetect.WPF.ViewModels;
 
@@ -23,12 +24,15 @@ namespace MachineLearning.ObjectDetect.WPF.Views
         {
             ViewModel = new MainWindowViewModel();
             InitializeComponent();
-            this.WhenActivated(disposableRegistration =>
+            this.WhenActivated(async disposableRegistration =>
             {
                 this.WhenAnyValue(viewModel => viewModel.ViewModel).BindTo(this, view => view.DataContext).DisposeWith(disposableRegistration);
 
                 // Router
                 this.OneWayBind(ViewModel, viewModel => viewModel.Router, view => view.RoutedViewHost.Router).DisposeWith(disposableRegistration);
+
+                // Start with New Capture content
+                await ViewModel.Router.Navigate.Execute(Locator.Current.GetService<SelectViewModel>());
             });
         }
     }

@@ -52,10 +52,11 @@ namespace MachineLearning.ObjectDetect.WPF
             services.AddTransient<ViewModels.MainWindowViewModel>();
 
             services.AddTransient<ViewModels.FolderViewModel>();
-            //services.AddTransient<ViewModels.VideoViewModel>();
+            services.AddTransient<ViewModels.SelectViewModel>();
 
             // Manual register views
             services.AddTransient(typeof(IViewFor<ViewModels.FolderViewModel>), typeof(Views.FolderView));
+            services.AddTransient(typeof(IViewFor<ViewModels.SelectViewModel>), typeof(Views.SelectView));
         }
     }
 }

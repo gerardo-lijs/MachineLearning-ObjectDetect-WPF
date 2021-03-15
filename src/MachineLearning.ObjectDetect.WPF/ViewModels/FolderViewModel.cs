@@ -24,6 +24,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
         private readonly MainWindowViewModel _mainViewModel;
 
         // Commands
+        public ReactiveCommand<Unit, Unit> NavigateBack { get; }
         public ReactiveCommand<Unit, Unit> PrevImage { get; }
         public ReactiveCommand<Unit, Unit> NextImage { get; }
         public ReactiveCommand<Unit, Unit> SelectImageFolder { get; }
@@ -45,6 +46,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
             _mainViewModel = HostScreen as MainWindowViewModel ?? throw new Exception("IScreen must be of type MainWindowViewModel");
 
             // Create command
+            NavigateBack = ReactiveCommand.CreateFromTask(NavigateBackImpl);
             PrevImage = ReactiveCommand.CreateFromTask(PrevImageImpl);
             NextImage = ReactiveCommand.CreateFromTask(NextImageImpl);
             SelectImageFolder = ReactiveCommand.CreateFromTask(SelectImageFolderImpl);
@@ -60,6 +62,11 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
             // Load image list
             ImageFolderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "TestImages");
+        }
+
+        private async Task NavigateBackImpl()
+        {
+            await _mainViewModel.Router.NavigateBack.Execute();
         }
 
         private async Task SelectImageFolderImpl()

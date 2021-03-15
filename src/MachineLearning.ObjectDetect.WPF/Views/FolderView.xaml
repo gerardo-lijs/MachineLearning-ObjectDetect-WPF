@@ -41,7 +41,8 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3" Margin="5">
-            <TextBox x:Name="ImageFolderPathTextBox" mah:TextBoxHelper.Watermark="Select image folder..." MinWidth="350" IsReadOnly="True" />
+            <Button x:Name="NavigateBackButton" Content="Back to select" />
+            <TextBox x:Name="ImageFolderPathTextBox" mah:TextBoxHelper.Watermark="Select image folder..." MinWidth="350" IsReadOnly="True" Margin="10,0,0,0" />
             <Button x:Name="SelectImageFolderButton" Content="{iconPacks:Material Kind=FolderOpen}" Style="{StaticResource TransparentButtonStyle}" Margin="3,0,0,0" ToolTip="Select image folder" />
         </StackPanel>
 
