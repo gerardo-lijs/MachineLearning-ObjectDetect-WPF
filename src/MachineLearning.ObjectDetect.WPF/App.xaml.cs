@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using ControlzEx.Theming;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
@@ -26,6 +26,20 @@ namespace MachineLearning.ObjectDetect.WPF
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
             await AppHost.StartAsync();
+
+            // Theme
+            var useWindowsTheme = false;
+            if (useWindowsTheme)
+            {
+                // Use Windows theme
+                ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithAppMode;
+                ThemeManager.Current.SyncTheme();
+            }
+            else
+            {
+                // Default Dark
+                ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
+            }
 
             // Show main window
             StartupUri = new Uri("Views/MainWindow.xaml", UriKind.Relative);

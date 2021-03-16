@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Splat;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using ControlzEx.Theming;
 
 using Microsoft.ML;
 using OnnxObjectDetection;
@@ -25,6 +26,8 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
         private PredictionEngine<ImageInputData, CustomVisionPrediction>? CustomVisionPredictionEngine;
         private PredictionEngine<ImageInputData, TinyYoloPrediction>? TinyYoloPredictionEngine;
 
+        [Reactive] public bool IsLightTheme { get; set; }
+
         public MainWindowViewModel()
         {
             Locator.CurrentMutable.RegisterConstant(this, typeof(IScreen));
@@ -33,6 +36,21 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
             // Initialize the Router.
             Router = new RoutingState();
+
+            // Current theme
+            var theme = ThemeManager.Current.DetectTheme();
+            IsLightTheme = theme is null || theme.BaseColorScheme == ThemeManager.BaseColorLight;
+
+            // Theme change
+            this.WhenAnyValue(x => x.IsLightTheme)
+                .Skip(1)
+                .Subscribe(isLightTheme =>
+                {
+                    if (isLightTheme)
+                        ThemeManager.Current.ChangeThemeBaseColor(System.Windows.Application.Current, "Light");
+                    else
+                        ThemeManager.Current.ChangeThemeBaseColor(System.Windows.Application.Current, "Dark");
+                });
         }
 
         public void LoadModel(string modelFilename)

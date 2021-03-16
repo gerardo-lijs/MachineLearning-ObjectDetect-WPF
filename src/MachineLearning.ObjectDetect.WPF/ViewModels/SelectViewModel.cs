@@ -48,18 +48,20 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
                 });
 
             // Create command
-            FolderViewSelect = ReactiveCommand.CreateFromTask(FolderViewSelectImpl);
-            WebcamViewSelect = ReactiveCommand.CreateFromTask(WebcamViewSelectImpl);
+            FolderViewSelect = ReactiveCommand.CreateFromObservable(FolderViewSelectImpl);
+            WebcamViewSelect = ReactiveCommand.CreateFromObservable(WebcamViewSelectImpl);
         }
 
-        private async Task FolderViewSelectImpl()
+        private IObservable<Unit> FolderViewSelectImpl()
         {
-            await _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<FolderViewModel>());
+            _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<FolderViewModel>()).Subscribe();
+            return Observable.Return(Unit.Default);
         }
 
-        private async Task WebcamViewSelectImpl()
+        private IObservable<Unit> WebcamViewSelectImpl()
         {
-            await _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<WebcamViewModel>());
+            _mainViewModel.Router.Navigate.Execute(Locator.Current.GetService<WebcamViewModel>()).Subscribe();
+            return Observable.Return(Unit.Default);
         }
     }
 }

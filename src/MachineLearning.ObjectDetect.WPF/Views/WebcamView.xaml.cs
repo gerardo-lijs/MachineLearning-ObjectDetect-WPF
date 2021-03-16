@@ -47,14 +47,20 @@ namespace MachineLearning.ObjectDetect.WPF.Views
                 this.OneWayBind(ViewModel, viewModel => viewModel.CameraOpenCv.IsGrabbing, view => view.WebcamStartButton.IsEnabled, x => !x).DisposeWith(disposableRegistration);
                 this.OneWayBind(ViewModel, viewModel => viewModel.CameraOpenCv.IsGrabbing, view => view.WebcamStopButton.IsEnabled).DisposeWith(disposableRegistration);
 
-                ViewModel.CameraOpenCv.ImageGrabbed.Subscribe(async image =>
+                // Checkbox
+                this.Bind(ViewModel, viewModel => viewModel.CameraOpenCv.FlipImageY, view => view.FlipImageYToggleSwitch.IsOn).DisposeWith(disposableRegistration);
+                this.Bind(ViewModel, viewModel => viewModel.CameraOpenCv.FlipImageX, view => view.FlipImageXToggleSwitch.IsOn).DisposeWith(disposableRegistration);
+                this.Bind(ViewModel, viewModel => viewModel.DetectObjects, view => view.DetectObjectsToggleSwitch.IsOn).DisposeWith(disposableRegistration);
+
+                ViewModel.CameraOpenCv.ImageGrabbed.Subscribe(async imageGrabbedData =>
                 {
                     // Update frame in UI thread
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        WebcamImage.Source = image.ToBitmapSource();
+                        CurrentFPSTextBlock.Text = imageGrabbedData.CurrentFPS.ToString("N1");
+                        WebcamImage.Source = imageGrabbedData.image.ToBitmapSource();
                     });
-                });
+                }).DisposeWith(disposableRegistration);
 
                 // Interactions
                 ViewModel.DrawOverlays.RegisterHandler(async interaction =>
@@ -66,7 +72,17 @@ namespace MachineLearning.ObjectDetect.WPF.Views
                     });
                     interaction.SetOutput(Unit.Default);
                 }).DisposeWith(disposableRegistration);
+
+                // Clean up logic to execute when the view model gets deactivated.
+                Disposable
+                    .Create(() => HandleDeactivation())
+                    .DisposeWith(disposableRegistration);
             });
+        }
+
+        private void HandleDeactivation()
+        {
+            ViewModel.CameraOpenCv.Dispose();
         }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e) => DrawOverlays();

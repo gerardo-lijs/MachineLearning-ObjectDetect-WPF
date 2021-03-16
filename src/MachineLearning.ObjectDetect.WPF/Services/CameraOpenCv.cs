@@ -23,8 +23,8 @@ namespace MachineLearning.ObjectDetect.WPF.Services
 #pragma warning disable CS0067 // Event used by Fody
         public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore CS0067 // Event used by Fody
-
         public record CameraDevice(int CameraIndex, string Name, string DeviceId);
+        public record ImageGrabbedData(Mat image, double CurrentFPS);
         /// <summary>
         /// Enumerates the connected cameras.
         /// </summary>
@@ -34,7 +34,7 @@ namespace MachineLearning.ObjectDetect.WPF.Services
         private CancellationTokenSource? _cts;
         private readonly System.Diagnostics.Stopwatch _fpsStopWatch = new System.Diagnostics.Stopwatch();
 
-        public ISubject<Mat> ImageGrabbed { get; } = new Subject<Mat>();
+        public ISubject<ImageGrabbedData> ImageGrabbed { get; } = new Subject<ImageGrabbedData>();
         public event CameraOpenCvEvents.GrabContinuousStartedEventHandler? GrabContinuousStarted;
         public event CameraOpenCvEvents.GrabContinuousStoppedEventHandler? GrabContinuousStopped;
         public bool IsGrabbing { get; private set; }
@@ -46,7 +46,7 @@ namespace MachineLearning.ObjectDetect.WPF.Services
 
         public bool FlipImageY { get; set; }
         public bool FlipImageX { get; set; }
-        public int CurrentFPS { get; private set; }
+        public double CurrentFPS { get; private set; }
 
         public async Task GrabContinuous_Start(int cameraIndex)
         {
@@ -67,7 +67,7 @@ namespace MachineLearning.ObjectDetect.WPF.Services
             IsGrabbing = true;
             GrabContinuousStarted?.Invoke();
 
-            var fpsCounter = new List<int>();
+            var fpsCounter = new List<double>();
 
             // Grab
             using var frame = new Mat();
@@ -79,10 +79,10 @@ namespace MachineLearning.ObjectDetect.WPF.Services
                     // Display FPS counter
                     if (_fpsStopWatch.IsRunning)
                     {
-                        fpsCounter.Add((int)Math.Ceiling((double)1000 / (int)_fpsStopWatch.ElapsedMilliseconds));
+                        fpsCounter.Add(1000 / _fpsStopWatch.ElapsedMilliseconds);
                         if (fpsCounter.Count > MaxDisplayFrameRate / 2)
                         {
-                            CurrentFPS = (int)Math.Ceiling(fpsCounter.Average());
+                            CurrentFPS = fpsCounter.Average();
                             fpsCounter.Clear();
                         }
                     }
@@ -98,7 +98,10 @@ namespace MachineLearning.ObjectDetect.WPF.Services
                         Mat workFrame = FlipImageY ? frame.Flip(FlipMode.Y) : frame;
                         workFrame = FlipImageX ? workFrame.Flip(FlipMode.X) : workFrame;
 
-                        ImageGrabbed.OnNext(workFrame);
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            ImageGrabbed.OnNext(new ImageGrabbedData(workFrame, CurrentFPS));
+                        }
                     }
                 }
                 else
@@ -114,11 +117,23 @@ namespace MachineLearning.ObjectDetect.WPF.Services
             GrabContinuousStopped?.Invoke();
         }
 
-        public void GrabContinuous_Stop() => _cts?.Cancel();
+        public async Task GrabContinuous_Stop()
+        {
+            // Check
+            if (_cts is null) return;
+
+            // If "Dispose" gets called before Stop
+            if (_cts.IsCancellationRequested) return;
+
+            _cts.Cancel();
+
+            // Wait for grab to finish - TODO: Refactor this!
+            await Task.Delay(250);
+        }
 
         public void Dispose()
         {
-            GrabContinuous_Stop();
+            _cts?.Cancel();
         }
     }
 }

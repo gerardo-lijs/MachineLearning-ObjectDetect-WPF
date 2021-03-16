@@ -14,7 +14,7 @@
 
     <UserControl.Resources>
         <Style x:Key="TransparentButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="LightBlue"/>
@@ -28,7 +28,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="Black">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -46,12 +46,12 @@
             <Button x:Name="SelectImageFolderButton" Content="{iconPacks:Material Kind=FolderOpen}" Style="{StaticResource TransparentButtonStyle}" Margin="3,0,0,0" ToolTip="Select image folder" />
         </StackPanel>
 
-        <Button Grid.Row="1" Grid.Column="0" x:Name="PrevImageButton" Content="{iconPacks:Material Kind=ArrowLeft}" Foreground="White" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="50" Height="50" ToolTip="Previous image" Margin="10" />
+        <Button Grid.Row="1" Grid.Column="0" x:Name="PrevImageButton" Content="{iconPacks:Material Kind=ArrowLeft}" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="50" Height="50" ToolTip="Previous image" Margin="10" />
 
         <Image x:Name="DetectImage" Grid.Row="1" Grid.Column="1" SizeChanged="DetectImage_SizeChanged"/>
         <Canvas x:Name="WebCamCanvas" Grid.Row="1" Grid.Column="1" Width="{Binding Path=ActualWidth, ElementName=DetectImage}" />
 
-        <Button Grid.Row="1" Grid.Column="2" x:Name="NextImageButton" Content="{iconPacks:Material Kind=ArrowRight}" Foreground="White" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="50" Height="50" ToolTip="Next image" Margin="10" />
+        <Button Grid.Row="1" Grid.Column="2" x:Name="NextImageButton" Content="{iconPacks:Material Kind=ArrowRight}" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="50" Height="50" ToolTip="Next image" Margin="10" />
 
         <StatusBar Grid.Row="2" Grid.ColumnSpan="3" >
             <TextBlock x:Name="StatusTextBlock" Margin="10,0,0,0" />

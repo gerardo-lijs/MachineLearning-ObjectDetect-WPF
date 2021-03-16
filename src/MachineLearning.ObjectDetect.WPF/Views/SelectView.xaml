@@ -9,40 +9,23 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     mc:Ignorable="d" 
-    Background="Black"
     d:DataContext="{d:DesignInstance Type=viewmodels:SelectViewModel, IsDesignTimeCreatable=false}">
-
-    <UserControl.Resources>
-        <Style x:Key="TransparentButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource MahApps.Styles.Button.Flat}">
-            <Setter Property="Foreground" Value="White"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="LightBlue"/>
-                    <Setter Property="Opacity" Value="0.7" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Opacity" Value="1" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
 
     <StackPanel VerticalAlignment="Center">
         <StackPanel Margin="10">
-            <TextBlock Text="Select which model you would like to use to predict objects in the images" HorizontalAlignment="Center" FontSize="18" Foreground="White" Margin="10" />
+            <TextBlock Text="Select which model you would like to use to predict objects in the images" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource MahApps.Brushes.Text}" Margin="10" />
             <ComboBox x:Name="ModelCombobox" HorizontalAlignment="Center" Margin="10" Padding="10" />
         </StackPanel>
         <StackPanel Margin="10">
-            <TextBlock Text="Select how you would like to load the images" HorizontalAlignment="Center" FontSize="18" Foreground="White" Margin="10" />
-            <StackPanel Orientation="Horizontal" Background="Black" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <TextBlock Text="Select how you would like to load the images" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource MahApps.Brushes.Text}" Margin="10" />
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <StackPanel>
-                    <Button x:Name="FolderViewButton" Content="{iconPacks:Material Kind=FolderOpenOutline, Width=42, Height=42}" Foreground="White" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="80" Height="80" ToolTip="Folder" Margin="20" />
-                    <TextBlock Foreground="White" Text="Folder" HorizontalAlignment="Center" />
+                    <Button x:Name="FolderViewButton" Content="{iconPacks:Material Kind=FolderOpenOutline, Width=42, Height=42}" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="80" Height="80" ToolTip="Folder" Margin="20" />
+                    <TextBlock Foreground="{DynamicResource MahApps.Brushes.Text}" Text="Folder" HorizontalAlignment="Center" />
                 </StackPanel>
                 <StackPanel>
-                    <Button x:Name="WebcamViewButton" Content="{iconPacks:Material Kind=Webcam, Width=42, Height=42}" Foreground="White" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="80" Height="80" ToolTip="Webcam" Margin="20" />
-                    <TextBlock Foreground="White" Text="Webcam" HorizontalAlignment="Center" />
+                    <Button x:Name="WebcamViewButton" Content="{iconPacks:Material Kind=Webcam, Width=42, Height=42}" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Style="{StaticResource MahApps.Styles.Button.Circle}" Width="80" Height="80" ToolTip="Webcam" Margin="20" />
+                    <TextBlock Foreground="{DynamicResource MahApps.Brushes.Text}" Text="Webcam" HorizontalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </StackPanel>

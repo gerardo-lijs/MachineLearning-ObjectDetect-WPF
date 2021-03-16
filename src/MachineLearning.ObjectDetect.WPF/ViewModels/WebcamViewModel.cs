@@ -41,6 +41,8 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
         // Interactions
         public readonly Interaction<Unit, Unit> DrawOverlays = new Interaction<Unit, Unit>();
 
+        [Reactive] public bool DetectObjects { get; set; }
+
         public WebcamViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
@@ -49,7 +51,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
             // Create command
             NavigateBack = ReactiveCommand.CreateFromTask(NavigateBackImpl);
             GrabContinuous_Start = ReactiveCommand.CreateFromTask(GrabContinuous_StartImpl);
-            GrabContinuous_Stop = ReactiveCommand.Create(GrabContinuous_StopImpl);
+            GrabContinuous_Stop = ReactiveCommand.CreateFromTask(GrabContinuous_StopImpl);
 
             // Enumerate cameras
             CameraDevices = Services.CameraOpenCv.EnumerateAllConnectedCameras().ToList();
@@ -59,12 +61,17 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
             CameraOpenCv = new Services.CameraOpenCv();
             //CameraOpenCv.GrabContinuousStarted += CameraOpenCv_GrabContinuousStarted;
             //CameraOpenCv.GrabContinuousStopped += CameraOpenCv_GrabContinuousStopped;
-            CameraOpenCv.ImageGrabbed.Subscribe(async image =>
-            {
-                var imageInputData = new ImageInputData { Image = image.ToBitmap() };
-                FilteredBoundingBoxes = _mainViewModel.DetectObjects(imageInputData);
-                await DrawOverlays.Handle(Unit.Default);
-            });
+            CameraOpenCv.ImageGrabbed.Subscribe(async imageGrabbedData =>
+                {
+                    // Check
+                    if (!DetectObjects) return;
+
+                    // Detect
+                    var imageInputData = new ImageInputData { Image = imageGrabbedData.image.ToBitmap() };
+                    FilteredBoundingBoxes = _mainViewModel.DetectObjects(imageInputData);
+                    await DrawOverlays.Handle(Unit.Default);
+                })
+                .DisposeWith(_cleanUp);
 
             this.WhenActivated(disposables =>
             {
@@ -82,6 +89,7 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
 
         private async Task NavigateBackImpl()
         {
+            await GrabContinuous_Stop.Execute();
             await _mainViewModel.Router.NavigateBack.Execute();
         }
 
@@ -94,10 +102,10 @@ namespace MachineLearning.ObjectDetect.WPF.ViewModels
             await CameraOpenCv.GrabContinuous_Start(CameraDeviceSelected.CameraIndex);
         }
 
-        private void GrabContinuous_StopImpl()
+        private async Task GrabContinuous_StopImpl()
         {
             // Cancel and dispose
-            CameraOpenCv.GrabContinuous_Stop();
+            await CameraOpenCv.GrabContinuous_Stop();
         }
     }
 }

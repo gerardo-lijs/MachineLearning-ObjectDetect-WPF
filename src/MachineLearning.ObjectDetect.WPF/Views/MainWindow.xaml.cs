@@ -31,9 +31,20 @@ namespace MachineLearning.ObjectDetect.WPF.Views
                 // Router
                 this.OneWayBind(ViewModel, viewModel => viewModel.Router, view => view.RoutedViewHost.Router).DisposeWith(disposableRegistration);
 
+                this.Bind(ViewModel, viewModel => viewModel.IsLightTheme, view => view.ThemeChangeToggleSwitch.IsOn).DisposeWith(disposableRegistration);
+
                 // Start with New Capture content
                 await ViewModel.Router.Navigate.Execute(Locator.Current.GetService<SelectViewModel>());
             });
+        }
+
+        private async void MainWindowBase_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var webcamViewModel = ViewModel.Router.GetCurrentViewModel() as WebcamViewModel;
+            if (webcamViewModel is not null)
+            {
+                await webcamViewModel.CameraOpenCv.GrabContinuous_Stop();
+            }
         }
     }
 }

@@ -5,11 +5,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:MachineLearning.ObjectDetect.WPF.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:viewmodels="clr-namespace:MachineLearning.ObjectDetect.WPF.ViewModels"
     xmlns:reactiveui="http://reactiveui.net"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel, IsDesignTimeCreatable=false}"
-    Title="ML.NET Object Detection (Onnx) - WPF Sample" TitleCharacterCasing="Normal" MinHeight="600" MinWidth="800" Width="1000" Height="800" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" >
+    Title="ML.NET Object Detection (Onnx) - WPF Sample" TitleCharacterCasing="Normal" MinHeight="600" MinWidth="800" Width="1000" Height="800" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" Closing="MainWindowBase_Closing" >
+
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <mah:WindowCommands.Resources>
+                <GridLength x:Key="ToggleSwitchPreContentMargin">0</GridLength>
+                <GridLength x:Key="ToggleSwitchPostContentMargin">0</GridLength>
+                <GridLength x:Key="ToggleSwitchContentSpaceMargin">0</GridLength>
+            </mah:WindowCommands.Resources>
+            <mah:ToggleSwitch Style="{StaticResource ObjectDetect.Styles.ToggleSwitch.Theme}" IsOn="False" x:Name="ThemeChangeToggleSwitch" />
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
 
     <Grid>
         <reactiveui:RoutedViewHost x:Name="RoutedViewHost" Grid.Row="0" Focusable="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" />

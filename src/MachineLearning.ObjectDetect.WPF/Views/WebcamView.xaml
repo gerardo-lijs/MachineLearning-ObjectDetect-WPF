@@ -9,7 +9,7 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     mc:Ignorable="d" 
-    d:DataContext="{d:DesignInstance Type=viewmodels:WebcamViewModel, IsDesignTimeCreatable=false}" MinWidth="500" MinHeight="500" Background="Black"
+    d:DataContext="{d:DesignInstance Type=viewmodels:WebcamViewModel, IsDesignTimeCreatable=false}" MinWidth="500" MinHeight="500"
     SizeChanged="UserControl_SizeChanged" >
 
     <Grid>
@@ -21,8 +21,8 @@
 
         <StackPanel Orientation="Horizontal" Margin="5">
             <Button x:Name="NavigateBackButton" Content="Back to select" />
-            <ComboBox x:Name="CameraDeviceComboBox" Margin="20,5,0,0" ItemsSource="{Binding CameraDevices, Mode=OneWay}" DisplayMemberPath="Name" SelectedItem="{Binding CameraDeviceSelected}" VerticalAlignment="Center" />
-            <TextBlock Margin="10" Foreground="White" VerticalAlignment="Center" ><Run Text="{Binding CameraOpenCv.CurrentFPS, Mode=OneWay}" /><Run Text=" fps"/></TextBlock>
+            <ComboBox x:Name="CameraDeviceComboBox" Margin="20,5,0,0" VerticalAlignment="Center" />
+            <TextBlock Margin="10" Foreground="{DynamicResource MahApps.Brushes.Text}" VerticalAlignment="Center" ><Run x:Name="CurrentFPSTextBlock" /><Run Text=" fps"/></TextBlock>
         </StackPanel>
 
         <Image x:Name="WebcamImage" Grid.Row="1" Stretch="Uniform"/>
@@ -33,10 +33,13 @@
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button x:Name="WebcamStartButton" Content="Start" Margin="10" Padding="5" MaxHeight="30" />
-            <Button x:Name="WebcamStopButton" Content="Stop"  Margin="10" Padding="5" MaxHeight="30" IsEnabled="False" />
+            <Button x:Name="WebcamStopButton" Content="Stop"  Margin="10" Padding="5" MaxHeight="30" />
 
-            <CheckBox x:Name="FlipImageYCheckBox" Content="Flip image Y" IsChecked="{Binding CameraOpenCv.FlipImageY}" VerticalAlignment="Center" Margin="10,0,0,0" />
-            <CheckBox x:Name="FlipImageXCheckBox" Content="Flip image X" IsChecked="{Binding CameraOpenCv.FlipImageX}" VerticalAlignment="Center" Margin="10,0,0,0" />
+            <StackPanel Orientation="Horizontal">
+                <mah:ToggleSwitch x:Name="FlipImageYToggleSwitch" Content="Flip image Y" Margin="10,0,0,0" />
+                <mah:ToggleSwitch x:Name="FlipImageXToggleSwitch" Content="Flip image X" Margin="10,0,0,0" />
+                <mah:ToggleSwitch x:Name="DetectObjectsToggleSwitch" Content="Detect objects" Margin="10,0,0,0" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </local:WebcamViewBase>
