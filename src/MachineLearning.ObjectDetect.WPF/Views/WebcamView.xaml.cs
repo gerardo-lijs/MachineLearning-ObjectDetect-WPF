@@ -55,11 +55,18 @@ namespace MachineLearning.ObjectDetect.WPF.Views
                 ViewModel.CameraOpenCv.ImageGrabbed.Subscribe(async imageGrabbedData =>
                 {
                     // Update frame in UI thread
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    try
                     {
-                        CurrentFPSTextBlock.Text = imageGrabbedData.CurrentFPS.ToString("N1");
-                        WebcamImage.Source = imageGrabbedData.image.ToBitmapSource();
-                    });
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            CurrentFPSTextBlock.Text = imageGrabbedData.CurrentFPS.ToString("N1");
+                            WebcamImage.Source = imageGrabbedData.image.ToBitmapSource();
+                        });
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // App shutting down
+                    }
                 }).DisposeWith(disposableRegistration);
 
                 // Interactions
