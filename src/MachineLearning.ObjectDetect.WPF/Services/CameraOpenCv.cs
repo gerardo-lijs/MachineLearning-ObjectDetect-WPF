@@ -64,7 +64,11 @@ namespace MachineLearning.ObjectDetect.WPF.Services
             videoCapture.Open(cameraIndex);
             if (!videoCapture.IsOpened()) throw new Exception("Could not open camera.");
 
-            IsGrabbing = true;
+            // TODO: Refactor this to Thread or in Caller
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                IsGrabbing = true;
+            });
             GrabContinuousStarted?.Invoke();
 
             var fpsCounter = new List<double>();
@@ -113,7 +117,12 @@ namespace MachineLearning.ObjectDetect.WPF.Services
             }
 
             videoCapture.Release();
-            IsGrabbing = false;
+            // TODO: Refactor this to Thread or in Caller
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                IsGrabbing = false;
+                CurrentFPS = 0;
+            });
             GrabContinuousStopped?.Invoke();
         }
 
