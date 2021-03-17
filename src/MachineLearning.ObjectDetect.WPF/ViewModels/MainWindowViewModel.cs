@@ -3,125 +3,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
 
-using System.Drawing;
-using System.Windows.Media.Imaging;
-
+using Splat;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using ControlzEx.Theming;
 
 using Microsoft.ML;
 using OnnxObjectDetection;
 
 namespace MachineLearning.ObjectDetect.WPF.ViewModels
 {
-    public class MainWindowViewModel : ReactiveObject
+    public class MainWindowViewModel : ReactiveObject, IScreen
     {
-        // TODO: Change this to UI select folder and change model in runtime
-        private readonly OnnxOutputParser outputParser;
-        private readonly PredictionEngine<ImageInputData, CustomVisionPrediction> customVisionPredictionEngine;
-        private readonly string modelsDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, @"OnnxModels");
+        public RoutingState Router { get; }
 
-        // Commands
-        public ReactiveCommand<Unit, Unit> PrevImage { get; }
-        public ReactiveCommand<Unit, Unit> NextImage { get; }
-        public ReactiveCommand<Unit, Unit> SelectImageFolder { get; }
+        public string ModelsDirectory { get; }
 
-        [Reactive] public string ImageFolderPath { get; private set; } = string.Empty;
-        [Reactive] public List<string> ImageList { get; private set; } = new List<string>();
-        [Reactive] public int ImageCurrentIndex { get; private set; }
+        private OnnxOutputParser? OutputParser;
+        private PredictionEngine<ImageInputData, CustomVisionPrediction>? CustomVisionPredictionEngine;
+        private PredictionEngine<ImageInputData, TinyYoloPrediction>? TinyYoloPredictionEngine;
 
-        [Reactive] public long DetectMilliseconds { get; private set; }
-        [Reactive] public BitmapSource? DetectImageSource { get; private set; }
-        public List<BoundingBox> FilteredBoundingBoxes { get; private set; } = new List<BoundingBox>();
-
-        // Interactions
-        public readonly Interaction<Unit, Unit> DrawOverlays = new Interaction<Unit, Unit>();
+        [Reactive] public bool IsLightTheme { get; set; }
 
         public MainWindowViewModel()
         {
-            // Create command
-            PrevImage = ReactiveCommand.CreateFromTask(PrevImageImpl);
-            NextImage = ReactiveCommand.CreateFromTask(NextImageImpl);
-            SelectImageFolder = ReactiveCommand.CreateFromTask(SelectImageFolderImpl);
+            Locator.CurrentMutable.RegisterConstant(this, typeof(IScreen));
 
-            // Load Onnx model
-            var customVisionExport = System.IO.Directory.GetFiles(modelsDirectory, "*.zip").FirstOrDefault();
+            ModelsDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, @"OnnxModels");
 
-            var customVisionModel = new CustomVisionModel(customVisionExport);
-            var modelConfigurator = new OnnxModelConfigurator(customVisionModel);
+            // Initialize the Router.
+            Router = new RoutingState();
 
-            outputParser = new OnnxOutputParser(customVisionModel);
-            customVisionPredictionEngine = modelConfigurator.GetMlNetPredictionEngine<CustomVisionPrediction>();
+            // Current theme
+            var theme = ThemeManager.Current.DetectTheme();
+            IsLightTheme = theme is null || theme.BaseColorScheme == ThemeManager.BaseColorLight;
 
-            // Observables
-            this.WhenAnyValue(x => x.ImageFolderPath)
+            // Theme change
+            this.WhenAnyValue(x => x.IsLightTheme)
                 .Skip(1)
-                .Subscribe(folder =>
+                .Subscribe(isLightTheme =>
                 {
-                    if (string.IsNullOrWhiteSpace(folder)) return;
-                    ImageList = System.IO.Directory.GetFiles(folder).Where(x => x.ToLowerInvariant().EndsWith(".png") || x.ToLowerInvariant().EndsWith(".jpg") || x.ToLowerInvariant().EndsWith(".jpeg") || x.ToLowerInvariant().EndsWith(".bmp")).ToList();
+                    if (isLightTheme)
+                        ThemeManager.Current.ChangeThemeBaseColor(System.Windows.Application.Current, "Light");
+                    else
+                        ThemeManager.Current.ChangeThemeBaseColor(System.Windows.Application.Current, "Dark");
                 });
-
-            // Load image list
-            ImageFolderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "TestImages");
         }
 
-        private async Task SelectImageFolderImpl()
+        public void LoadModel(string modelFilename)
         {
-            using var dialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                ShowNewFolderButton = false,
-                SelectedPath = ImageFolderPath
-            };
+            var modelFullFilename = System.IO.Path.Combine(ModelsDirectory, modelFilename);
 
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            // Load Onnx model
+            if (modelFilename.EndsWith(".zip"))
             {
-                ImageFolderPath = dialog.SelectedPath;
-                ImageCurrentIndex = 0;
-                if (ImageList.Count > 0)
-                {
-                    await NextImage.Execute();
-                }
+                var customVisionModel = new CustomVisionModel(modelFullFilename);
+                var modelConfigurator = new OnnxModelConfigurator(customVisionModel);
+
+                OutputParser = new OnnxOutputParser(customVisionModel);
+                CustomVisionPredictionEngine = modelConfigurator.GetMlNetPredictionEngine<CustomVisionPrediction>();
+                TinyYoloPredictionEngine = null;
+            }
+            else
+            {
+                var tinyYoloModel = new TinyYoloModel(modelFullFilename);
+                var modelConfigurator = new OnnxModelConfigurator(tinyYoloModel);
+
+                OutputParser = new OnnxOutputParser(tinyYoloModel);
+                TinyYoloPredictionEngine = modelConfigurator.GetMlNetPredictionEngine<TinyYoloPrediction>();
+                CustomVisionPredictionEngine = null;
             }
         }
 
-        private async Task PrevImageImpl()
+        public List<BoundingBox> DetectObjects(ImageInputData imageInputData)
         {
-            if (ImageCurrentIndex <= 1) return;
-            ImageCurrentIndex--;
-            await LoadAndDetectImage(ImageList[ImageCurrentIndex - 1]);
-        }
+            if (OutputParser is null) throw new Exception("Model not loaded.");
 
-        private async Task NextImageImpl()
-        {
-            if (ImageList.Count == ImageCurrentIndex) return;
-            ImageCurrentIndex++;
-            await LoadAndDetectImage(ImageList[ImageCurrentIndex - 1]);
-        }
-
-        async Task DetectImage(Bitmap bitmap)
-        {
-            var imageInputData = new ImageInputData { Image = bitmap };
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            var labels = customVisionPredictionEngine.Predict(imageInputData).PredictedLabels;
-            var boundingBoxes = outputParser.ParseOutputs(labels);
-            FilteredBoundingBoxes = outputParser.FilterBoundingBoxes(boundingBoxes, 5, 0.5f);
-
-            // Time spent for detection by ML.NET
-            DetectMilliseconds = sw.ElapsedMilliseconds;
-
-            await DrawOverlays.Handle(Unit.Default);
-        }
-
-        private async Task LoadAndDetectImage(string filename)
-        {
-            var bitmapImage = new Bitmap(filename);
-            DetectImageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmapImage.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            await DetectImage(bitmapImage);
+            var labels = CustomVisionPredictionEngine?.Predict(imageInputData).PredictedLabels ?? TinyYoloPredictionEngine?.Predict(imageInputData).PredictedLabels;
+            var boundingBoxes = OutputParser.ParseOutputs(labels);
+            var filteredBoxes = OutputParser.FilterBoundingBoxes(boundingBoxes, 5, 0.5f);
+            return filteredBoxes;
         }
     }
 }
